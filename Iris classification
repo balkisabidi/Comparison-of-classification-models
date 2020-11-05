@@ -1,1 +1,58 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Nov  3 14:10:03 2020
+
+@author: 35266
+"""
+
+
+import pandas 
+import matplotlib
+import numpy as np
+import sklearn 
+import scipy
+
+
+# Load libraries
+from pandas import read_csv
+from matplotlib import pyplot as pt
+from sklearn import model_selection as mds
+from sklearn import *
+
+
+
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/iris.csv"
+names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
+dataset= read_csv(url, names= names )
+print(dataset.shape) # Dimensions of Dataset
+print(dataset.head(20)) #Head of data
+print(dataset.describe())
+print(dataset.groupby('class').size())
+
+array = dataset.values
+X = array[:,0:4]
+y = array[:,4]
+X_train, X_validation, Y_train, Y_validation = mds.train_test_split(X, y, test_size=0.20, random_state=1)
+
+models = []
+models.append(('LR', sklearn.linear_model.LogisticRegression(solver='liblinear', multi_class='ovr')))
+models.append(('LDA', sklearn.discriminant_analysis.LinearDiscriminantAnalysis()))
+models.append(('KNN', sklearn.neighbors.KNeighborsClassifier()))
+models.append(('CART', sklearn.tree.DecisionTreeClassifier()))
+models.append(('NB', sklearn.naive_bayes.GaussianNB()))
+models.append(('SVM', sklearn.svm.SVC(gamma='auto')))
+# evaluate each model in turn
+results = []
+names = []
+
+for name, model in models:
+	kfold = mds.StratifiedKFold(n_splits=10, random_state=1, shuffle=True)
+	cv_results = mds.cross_val_score(model, X_train, Y_train, cv=kfold, scoring='accuracy')
+	results.append(cv_results)
+	names.append(name)
+	print('%s: %f (%f)' % (name, cv_results.mean(), cv_results.std()))
+
+pt.boxplot(results, labels=names)
+pt.title('Algorithm Comparison')
+pt.show()
 
