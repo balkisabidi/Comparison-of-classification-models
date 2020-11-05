@@ -1,1 +1,1 @@
-# Comparison-of-classification-models
+# Comparison-of-classification-models on Iris dataset
